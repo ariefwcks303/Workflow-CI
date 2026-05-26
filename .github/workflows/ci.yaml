@@ -42,8 +42,7 @@ jobs:
         env:
           MLFLOW_TRACKING_URI: https://dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/Workflow-CI.mlflow
         run: |
-          source /usr/share/miniconda/etc/profile.d/conda.sh
-          mlflow run MLProject --param-list n_estimators=100 --param-list max_depth=10
+          mlflow run MLProject --env-manager local --param-list n_estimators=100 --param-list max_depth=10
 
       # 6. Login ke Akun Docker Hub milikmu menggunakan Secrets keamanan
       - name: Log in to Docker Hub
