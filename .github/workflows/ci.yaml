@@ -23,24 +23,22 @@ jobs:
         with:
           python-version: "3.10"
 
-      # 3. Menginstal library MLflow dan pendukungnya
+      # 3. Menginstal library MLflow dan semua dependensi pendukung proyek
       - name: Install Base Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install mlflow dagshub pandas scikit-learn matplotlib seaborn joblib
 
-      # 4. Melatih ulang model secara otomatis via Direct Python & Ekstrak RUN_ID
+      # 4. Melatih ulang model secara otomatis & mengunci RUN_ID secara silent/non-interaktif
       - name: Run MLflow Project (Retraining)
         env:
           MLFLOW_TRACKING_URI: https://dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/Workflow-CI.mlflow
           MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
           MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
+          DAGSHUB_CLIENT_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
           cd MLProject
-          # Jalankan training dan cetak Run ID ke environment GitHub Actions
           python modelling.py --n_estimators 100 --max_depth 10
-
-          # Taktik mengambil Run ID terbaru dari MLflow lokal untuk dioper ke tahap Docker
           echo "RUN_ID=$(python -c "import mlflow; client = mlflow.MlflowClient(); runs = client.search_runs(experiment_ids=client.get_experiment_by_name('Student_Placement_Advance').experiment_id); print(runs[0].info.run_id if runs else '')")" >> $GITHUB_ENV
 
       # 5. Membungkus model menjadi Docker Image menggunakan RUN_ID otomatis
