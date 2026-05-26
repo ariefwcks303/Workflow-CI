@@ -39,7 +39,9 @@ jobs:
         run: |
           cd MLProject
           python modelling.py --n_estimators 100 --max_depth 10
-          echo "RUN_ID=$(python -c "import mlflow; client = mlflow.MlflowClient(); runs = client.search_runs(experiment_ids=client.get_experiment_by_name('Student_Placement_Advance').experiment_id); print(runs[0].info.run_id if runs else '')")" >> $GITHUB_ENV
+
+          # Taktik absolut: Ambil RUN_ID dari aktivitas run paling terakhir di local tracking server
+          echo "RUN_ID=$(python -c "import mlflow; print(mlflow.last_active_run().info.run_id if mlflow.last_active_run() else '')")" >> $GITHUB_ENV
 
       # 5. Membungkus model menjadi Docker Image menggunakan RUN_ID otomatis
       - name: Build Docker Image using MLflow
