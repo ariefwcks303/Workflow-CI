@@ -39,8 +39,11 @@ jobs:
 
       # 5. Membungkus model menjadi Docker Image (Syarat Saklek Kriteria Advanced)
       - name: Build Docker Image using MLflow
+        env:
+          MLFLOW_TRACKING_URI: https://dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/Workflow-CI.mlflow
         run: |
-          mlflow models build-docker -m "runs:/${{ github.run_id }}/model" -n "ariefwcks303/student-placement-model:latest" --build-env-cmd "echo 'Building Docker Image'"
+          source /usr/share/miniconda/etc/profile.d/conda.sh
+          mlflow run MLProject --param-list n_estimators=100 --param-list max_depth=10
 
       # 6. Login ke Akun Docker Hub milikmu menggunakan Secrets keamanan
       - name: Log in to Docker Hub
