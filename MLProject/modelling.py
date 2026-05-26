@@ -48,7 +48,7 @@ def main():
     # -------------------------------------------------------------------------
     # 4. LOGGING HASIL OTOMATISASI KE MLFLOW
     # -------------------------------------------------------------------------
-    with mlflow.start_run(run_name="CI_Automated_Retraining"):
+    with mlflow.start_run(run_name="CI_Automated_Retraining") as run:
         print("📝 Mencatat parameter, metrik, dan artefak baru...")
         
         # Mencatat parameter yang digunakan saat ini
@@ -77,6 +77,11 @@ def main():
         plt.close()
         
         mlflow.log_artifact(plot_file)
+        
+        # 🌟 LOG TAKTIS: Tulis RUN_ID aktif ke dalam file teks sebelum session ditutup
+        with open("run_id.txt", "w") as f:
+            f.write(run.info.run_id)
+            
         print("🎯 Selesai! Semua data sukses terkirim ke cloud DagsHub.")
 
 if __name__ == "__main__":

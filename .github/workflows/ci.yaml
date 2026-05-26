@@ -29,7 +29,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install mlflow dagshub pandas scikit-learn matplotlib seaborn joblib
 
-      # 4. Melatih ulang model secara otomatis & mengunci RUN_ID secara silent/non-interaktif
+      # 4. Melatih ulang model secara otomatis & mengekstrak RUN_ID via file teks
       - name: Run MLflow Project (Retraining)
         env:
           MLFLOW_TRACKING_URI: https://dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/Workflow-CI.mlflow
@@ -40,8 +40,8 @@ jobs:
           cd MLProject
           python modelling.py --n_estimators 100 --max_depth 10
 
-          # Taktik absolut: Ambil RUN_ID dari aktivitas run paling terakhir di local tracking server
-          echo "RUN_ID=$(python -c "import mlflow; print(mlflow.last_active_run().info.run_id if mlflow.last_active_run() else '')")" >> $GITHUB_ENV
+          # Membaca RUN_ID yang ditulis oleh modelling.py dan disimpan ke environment GitHub Actions
+          echo "RUN_ID=$(cat run_id.txt)" >> $GITHUB_ENV
 
       # 5. Membungkus model menjadi Docker Image menggunakan RUN_ID otomatis
       - name: Build Docker Image using MLflow
