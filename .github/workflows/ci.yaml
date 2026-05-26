@@ -28,9 +28,9 @@ jobs:
 
       - name: Run MLflow Project (Retraining)
         env:
-          MLFLOW_TRACKING_URI: https://dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/Workflow-CI.mlflow
-          MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
-          MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
+          MLFLOW_TRACKING_URI: https://dagshub.com/ariefwcks303/Eksperimen_SML_Arief.mlflow
+          # Menggunakan token untuk bypass login interaktif
+          DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
           cd MLProject
           python modelling.py --n_estimators 100 --max_depth 10
@@ -38,8 +38,7 @@ jobs:
       - name: Build and Push Docker Image
         run: |
           cd MLProject
-          # Tidak ada lagi python -c ... (menghindari error 404 API)
-          # Docker langsung membungkus folder 'model' yang dibuat oleh modelling.py
+          # Membangun image menggunakan folder 'model' hasil training lokal
           docker build -t ariefwcksdevs/student-placement-model:latest .
 
       - name: Log in to Docker Hub
