@@ -59,12 +59,11 @@ def main():
         mlflow.log_metric("accuracy", acc)
         mlflow.log_metric("f1_score", f1)
         
-        # Membuat dan mengunggah Artefak 1: Model biner (.pkl)
-        model_file = "best_model.pkl"
-        joblib.dump(model, model_file)
-        mlflow.log_artifact(model_file)
+        # 🌟 PERUBAHAN KRUSIAL: Daftarkan model menggunakan MLflow Sklearn Flavor
+        # Ini akan otomatis membuat sub-folder bernama "model" yang dicari oleh build-docker
+        mlflow.sklearn.log_model(model, "model")
         
-        # Membuat dan mengunggah Artefak 2: Plot matriks evaluasi (.png)
+        # Membuat dan mengunggah Artefak Tambahan: Plot matriks evaluasi (.png)
         cm = confusion_matrix(y_test, y_pred)
         plt.figure(figsize=(5,4))
         sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['Not Placed', 'Placed'], yticklabels=['Not Placed', 'Placed'])
@@ -78,7 +77,7 @@ def main():
         
         mlflow.log_artifact(plot_file)
         
-        # 🌟 LOG TAKTIS: Tulis RUN_ID aktif ke dalam file teks sebelum session ditutup
+        # Ambil jalan pintas untuk mencatat RUN_ID ke file teks
         with open("run_id.txt", "w") as f:
             f.write(run.info.run_id)
             
