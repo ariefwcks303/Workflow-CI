@@ -24,7 +24,7 @@ def main():
     # dagshub.init akan otomatis mendeteksi DAGSHUB_USER_TOKEN dari env
     print("🌐 Menyambungkan ke DagsHub via Token...")
     dagshub.init(repo_owner="ariefwcks303", repo_name="Eksperimen_SML_Arief", mlflow=True)
-    mlflow.set_experiment("Student_Placement_Advance")
+    mlflow.set_experiment("Student_Placement_Advanced_Online")
     
     # 3. DATA & TRAINING
     df = pd.read_csv("student_dataset_clean.csv")
