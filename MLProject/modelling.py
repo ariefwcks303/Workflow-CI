@@ -40,7 +40,7 @@ def main():
         "https://dagshub.com/ariefwcks303/Eksperimen_SML_Arief.mlflow"
     )
 
-    mlflow.set_experiment("Student_Placement_Advanced_Online")
+    #mlflow.set_experiment("Student_Placement_Advanced_Online")
 
     # =========================
     # LOAD DATA
