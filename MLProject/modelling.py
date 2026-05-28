@@ -1,15 +1,17 @@
 import os
 import argparse
 import shutil
+
 import pandas as pd
 import mlflow
 import mlflow.sklearn
+
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix
 
 
 def main():
@@ -74,52 +76,58 @@ def main():
     print(f"✅ Accuracy: {accuracy:.4f}")
 
     # =========================
-    # START MLFLOW RUN
+    # LOG PARAMETERS
     # =========================
-    with mlflow.start_run(run_name="CI_Automated_Retraining") as run:
+    mlflow.log_param("n_estimators", args.n_estimators)
+    mlflow.log_param("max_depth", args.max_depth)
 
-        # PARAMETERS
-        mlflow.log_param("n_estimators", args.n_estimators)
-        mlflow.log_param("max_depth", args.max_depth)
+    # =========================
+    # LOG METRICS
+    # =========================
+    mlflow.log_metric("accuracy", accuracy)
 
-        # METRICS
-        mlflow.log_metric("accuracy", accuracy)
+    # =========================
+    # CONFUSION MATRIX
+    # =========================
+    cm = confusion_matrix(y_test, predictions)
 
-        # =========================
-        # CONFUSION MATRIX
-        # =========================
-        cm = confusion_matrix(y_test, predictions)
+    plt.figure(figsize=(6, 5))
 
-        plt.figure(figsize=(6, 5))
-        sns.heatmap(cm, annot=True, fmt="d")
-        plt.title("Confusion Matrix")
+    sns.heatmap(cm, annot=True, fmt="d")
 
-        plt.savefig("confusion_matrix.png")
+    plt.title("Confusion Matrix")
 
-        mlflow.log_artifact("confusion_matrix.png")
+    plt.savefig("confusion_matrix.png")
 
-        # =========================
-        # LOG MODEL TO DAGSHub
-        # =========================
-        mlflow.sklearn.log_model(model, "model")
+    mlflow.log_artifact("confusion_matrix.png")
 
-        # =========================
-        # SAVE MODEL LOCAL
-        # =========================
-        if os.path.exists("model"):
-            shutil.rmtree("model")
+    # =========================
+    # LOG MODEL TO DAGSHUB
+    # =========================
+    mlflow.sklearn.log_model(model, "model")
 
-        mlflow.sklearn.save_model(model, "model")
+    # =========================
+    # SAVE MODEL LOCAL
+    # =========================
+    if os.path.exists("model"):
+        shutil.rmtree("model")
 
-        # =========================
-        # SAVE RUN ID
-        # =========================
+    mlflow.sklearn.save_model(model, "model")
+
+    # =========================
+    # SAVE RUN ID
+    # =========================
+    active_run = mlflow.active_run()
+
+    if active_run:
+
         with open("run_id.txt", "w") as f:
-            f.write(run.info.run_id)
+            f.write(active_run.info.run_id)
 
-        print("✅ Model saved locally.")
-        print("✅ Model logged to DagsHub.")
-        print(f"🆔 Run ID: {run.info.run_id}")
+        print(f"🆔 Run ID: {active_run.info.run_id}")
+
+    print("✅ Model saved locally.")
+    print("✅ Model logged to DagsHub.")
 
 
 if __name__ == "__main__":
