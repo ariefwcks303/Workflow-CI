@@ -38,10 +38,14 @@ jobs:
           cd MLProject
           mlflow run . --env-manager=local -P n_estimators=100 -P max_depth=10
 
-      - name: Build Docker Image
+      - name: Build Docker Image with MLflow
         run: |
           cd MLProject
-          docker build -t ariefwcksdevs/student-placement-model:latest .
+
+          mlflow models build-docker \
+          --model-uri model \
+          --name ariefwcksdevs/student-placement-model
+
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
